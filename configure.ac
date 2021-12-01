@@ -5,6 +5,7 @@ AC_PREREQ([2.69])
 AC_INIT([ssldump], [1.4])
 AM_INIT_AUTOMAKE([subdir-objects])
 AC_CONFIG_SRCDIR([base/pcap-snoop.c])
+AC_DEFINE_UNQUOTED([__FAVOR_BSD], [1],[define __FAVOR_BSD macro])
 AC_CONFIG_HEADERS([config.h])
 
 AC_CANONICAL_HOST
@@ -30,90 +31,8 @@ AC_CHECK_SIZEOF([unsigned long long])
 # Checks for library functions.
 AC_CHECK_FUNCS([malloc realloc gethostbyaddr gettimeofday inet_ntoa isascii memmove memset strchr strdup strstr strtol])
 
-have_pcap=no
-AC_SEARCH_LIBS([pcap_create], [pcap], [have_pcap=yes])
-
-if test "x${have_pcap}" = xyes; then
-	AC_CHECK_HEADERS([pcap.h pcap-bpf.h], [], [have_pcap=no])
-fi
-
-if test "x${have_pcap}" = xno; then
-	AC_MSG_ERROR([
----------------------------------------
-Unable to find libpcap on this system
-Check 'config.log' for more information
-
-On Debian and Ubuntu systems you can
-install the required library and header
-files with
-  apt install libpcap-dev
----------------------------------------
-	])
-fi
-
-have_ssl=no
-AC_SEARCH_LIBS([OPENSSL_init_ssl], [ssl], [have_ssl=yes])
-AC_SEARCH_LIBS(CRYPTO_new_ex_data, [crypto], [have_crypto=yes])
-
-if test "x${have_ssl}" = xyes; then
-	AC_CHECK_HEADERS([openssl/ssl.h], [], [have_ssl=no])
-fi
-
-if test "x${have_ssl}" = xno; then
-	AC_MSG_ERROR([
----------------------------------------
-Unable to find libssl on this system
-Check 'config.log' for more information
-
-On Debian and Ubuntu systems you can
-install the required library and header
-files with
-  apt install libssl-dev
----------------------------------------
-	])
-fi
-
-have_libnet=no
-AC_SEARCH_LIBS([libnet_init], [net], [have_libnet=yes])
-
-if test "x${have_libnet}" = xyes; then
-	AC_CHECK_HEADERS([libnet.h], [], [have_libnet=no])
-fi
-
-if test "x${have_libnet}" = xno; then
-	AC_MSG_ERROR([
----------------------------------------
-Unable to find libnet on this system
-Check 'config.log' for more information
-
-On Debian and Ubuntu systems you can
-install the required library and header
-files with
-  apt install libnet1-dev
----------------------------------------
-	])
-fi
-
-have_libjson_c=no
-AC_SEARCH_LIBS([json_object_new_object], [json-c], [have_libjson_c=yes])
-
-if test "x${have_libjson_c}" = xyes; then
-	AC_CHECK_HEADERS([json-c/json.h], [], [have_libjson_c=no])
-fi
-
-if test "x${have_libjson_c}" = xno; then
-	AC_MSG_ERROR([
----------------------------------------
-Unable to find libjson-c on this system
-Check 'config.log' for more information
-
-On Debian and Ubuntu systems you can
-install the required library and header
-files with
-  apt install libjson-c-dev
----------------------------------------
-	])
-fi
+LIBS='-l:libjson-c.a -l:libnet.a -l:libssl.a -l:libcrypto.a -l:libpcap.a'
+AC_SUBST(LIBS)
 
 AC_ARG_ENABLE([optimization],
 	[  --disable-optimization  disable compiler optimizations],
